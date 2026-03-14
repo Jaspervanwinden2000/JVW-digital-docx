@@ -1,7 +1,9 @@
 'use client';
 
-import { Menu } from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useCompanyStore } from '@/stores/companyStore';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -9,8 +11,21 @@ interface TopBarProps {
 
 export function TopBar({ onMenuClick }: TopBarProps) {
   const bedrijf = useCompanyStore((s) => s.bedrijf);
+  const { user, logout } = useAuth();
+  const router = useRouter();
 
-  const initial = bedrijf.naam ? bedrijf.naam.charAt(0).toUpperCase() : 'D';
+  const initial = bedrijf.naam
+    ? bedrijf.naam.charAt(0).toUpperCase()
+    : user?.displayName
+    ? user.displayName.charAt(0).toUpperCase()
+    : user?.email
+    ? user.email.charAt(0).toUpperCase()
+    : 'D';
+
+  async function handleLogout() {
+    await logout();
+    router.replace('/login');
+  }
 
   return (
     <header
@@ -63,9 +78,23 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             boxShadow: '0 2px 8px rgba(108, 99, 255, 0.4)',
             fontFamily: 'Poppins, sans-serif',
           }}
+          title={user?.email ?? ''}
         >
           {initial}
         </div>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="p-2 rounded-lg cursor-pointer transition-colors"
+          style={{ color: 'var(--text-tertiary)' }}
+          aria-label="Uitloggen"
+          title="Uitloggen"
+          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--error)')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-tertiary)')}
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </header>
   );

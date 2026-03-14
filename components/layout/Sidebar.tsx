@@ -43,9 +43,9 @@ function SidebarContent({ onClose }: { onClose: () => void }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[13.5px] font-semibold leading-none" style={{ color: '#EEF2FF', fontFamily: 'Poppins, sans-serif' }}>
-            DocuForge Pro
+            JVW-digital
           </p>
-          <p className="text-[11px] mt-0.5" style={{ color: 'rgba(108, 99, 255, 0.7)' }}>Enterprise</p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'rgba(108, 99, 255, 0.7)' }}>Document Generator</p>
         </div>
         <button
           onClick={onClose}

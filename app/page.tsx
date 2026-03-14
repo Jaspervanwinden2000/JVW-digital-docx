@@ -19,7 +19,7 @@ export default function Dashboard() {
       <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
         <p className="section-label mb-1">Overzicht</p>
         <h1 className="text-[22px] font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-          {bedrijf.naam ? `Welkom, ${bedrijf.naam}` : 'Welkom bij DocuForge Pro'}
+          {bedrijf.naam ? `Welkom, ${bedrijf.naam}` : 'Welkom bij JVW-digital'}
         </h1>
         <p className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{today}</p>
       </motion.div>
