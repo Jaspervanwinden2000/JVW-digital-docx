@@ -124,7 +124,7 @@ export default function NieuweOffertePage() {
             <div>
               <h2 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Bedrijfsgegevens</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>Gegevens van de afzender.</p>
-              <BedrijfForm value={data.bedrijf || bedrijf} onChange={(b) => { setData({ bedrijf: b }); setBedrijf(b); }} />
+              <BedrijfForm value={data.bedrijf || bedrijf} onChange={(b) => { setData({ bedrijf: b as import('@/types').Bedrijf }); setBedrijf(b as import('@/types').Bedrijf); }} />
             </div>
           )}
 

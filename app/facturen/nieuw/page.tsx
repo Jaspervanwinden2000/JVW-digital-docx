@@ -106,7 +106,7 @@ export default function NieuweFactuurPage() {
             <div>
               <h2 className="text-[16px] font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>Bedrijfsgegevens</h2>
               <p className="text-[13px] mb-6" style={{ color: 'var(--text-secondary)' }}>Automatisch opgeslagen voor toekomstige facturen.</p>
-              <BedrijfForm value={data.bedrijf || bedrijf} onChange={(b) => { setData({ bedrijf: b }); setBedrijf(b); }} />
+              <BedrijfForm value={data.bedrijf || bedrijf} onChange={(b) => { setData({ bedrijf: b as import('@/types').Bedrijf }); setBedrijf(b as import('@/types').Bedrijf); }} />
             </div>
           )}
           {currentStep === 2 && (
