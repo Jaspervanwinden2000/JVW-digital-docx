@@ -1,6 +1,8 @@
 'use client';
 
-import { Menu, LogOut } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Menu, LogOut, User } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCompanyStore } from '@/stores/companyStore';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,19 +15,30 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const bedrijf = useCompanyStore((s) => s.bedrijf);
   const { user, logout } = useAuth();
   const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const initial = bedrijf.naam
-    ? bedrijf.naam.charAt(0).toUpperCase()
-    : user?.displayName
-    ? user.displayName.charAt(0).toUpperCase()
-    : user?.email
-    ? user.email.charAt(0).toUpperCase()
-    : 'D';
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'Gebruiker';
+  const email = user?.email || '';
+  const photoURL = user?.photoURL;
+  const initial = displayName.charAt(0).toUpperCase();
 
   async function handleLogout() {
+    setMenuOpen(false);
     await logout();
     router.replace('/login');
   }
+
+  // Sluit menu bij klik buiten
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <header
@@ -69,32 +82,112 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        {/* Avatar */}
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
-          style={{
-            background: 'linear-gradient(135deg, #6C63FF 0%, #5040EE 100%)',
-            boxShadow: '0 2px 8px rgba(108, 99, 255, 0.4)',
-            fontFamily: 'Poppins, sans-serif',
-          }}
-          title={user?.email ?? ''}
-        >
-          {initial}
-        </div>
-
-        {/* Logout */}
+      {/* Account dropdown */}
+      <div className="relative" ref={menuRef}>
         <button
-          onClick={handleLogout}
-          className="p-2 rounded-lg cursor-pointer transition-colors"
-          style={{ color: 'var(--text-tertiary)' }}
-          aria-label="Uitloggen"
-          title="Uitloggen"
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--error)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-tertiary)')}
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="flex items-center gap-2 rounded-xl px-2 py-1.5 cursor-pointer transition-all"
+          style={{
+            background: menuOpen ? 'rgba(255,255,255,0.07)' : 'transparent',
+            border: '1px solid transparent',
+          }}
+          onMouseEnter={(e) => {
+            if (!menuOpen) e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+          }}
+          onMouseLeave={(e) => {
+            if (!menuOpen) e.currentTarget.style.background = 'transparent';
+          }}
+          aria-label="Account menu"
         >
-          <LogOut className="w-4 h-4" />
+          {/* Avatar */}
+          {photoURL ? (
+            <Image
+              src={photoURL}
+              alt={displayName}
+              width={30}
+              height={30}
+              className="rounded-lg flex-shrink-0 object-cover"
+              style={{ boxShadow: '0 2px 8px rgba(108, 99, 255, 0.3)' }}
+            />
+          ) : (
+            <div
+              className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, #6C63FF 0%, #5040EE 100%)',
+                boxShadow: '0 2px 8px rgba(108, 99, 255, 0.4)',
+                fontFamily: 'Poppins, sans-serif',
+              }}
+            >
+              {initial}
+            </div>
+          )}
+
+          {/* Naam — verborgen op mobiel */}
+          <span className="hidden sm:block text-[13px] font-medium max-w-[120px] truncate" style={{ color: 'var(--text-primary)' }}>
+            {displayName}
+          </span>
         </button>
+
+        {/* Dropdown menu */}
+        {menuOpen && (
+          <div
+            className="absolute right-0 top-full mt-2 w-64 rounded-2xl overflow-hidden z-50"
+            style={{
+              background: 'rgba(13, 20, 37, 0.95)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            }}
+          >
+            {/* Profiel header */}
+            <div className="p-4 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              {photoURL ? (
+                <Image
+                  src={photoURL}
+                  alt={displayName}
+                  width={40}
+                  height={40}
+                  className="rounded-xl object-cover flex-shrink-0"
+                  style={{ boxShadow: '0 2px 12px rgba(108, 99, 255, 0.35)' }}
+                />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-[15px] font-bold text-white flex-shrink-0"
+                  style={{
+                    background: 'linear-gradient(135deg, #6C63FF 0%, #5040EE 100%)',
+                    boxShadow: '0 2px 12px rgba(108, 99, 255, 0.4)',
+                    fontFamily: 'Poppins, sans-serif',
+                  }}
+                >
+                  {initial}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold truncate" style={{ color: 'var(--text-primary)', fontFamily: 'Poppins, sans-serif' }}>
+                  {displayName}
+                </p>
+                <p className="text-[11px] truncate mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                  {email}
+                </p>
+              </div>
+            </div>
+
+            {/* Acties */}
+            <div className="p-2">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] cursor-pointer transition-colors text-left"
+                style={{ color: 'var(--error)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(252,129,129,0.08)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <LogOut className="w-4 h-4 flex-shrink-0" />
+                Uitloggen
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
