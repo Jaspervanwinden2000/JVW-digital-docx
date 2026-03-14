@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Plus, FileSpreadsheet, Eye, Copy, Search, Filter } from 'lucide-react';
 import { useDocumentsStore } from '@/stores/documentsStore';
 import { useCompanyStore } from '@/stores/companyStore';
+import { useInvoiceFormStore } from '@/stores/formStores';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -22,6 +24,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function OffertesPage() {
+  const router = useRouter();
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [zoekterm, setZoekterm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -30,6 +33,38 @@ export default function OffertesPage() {
   const duplicateDocument = useDocumentsStore((s) => s.duplicateDocument);
   const getOfferteNummer = useCompanyStore((s) => s.getOfferteNummer);
   const incrementOfferteNummer = useCompanyStore((s) => s.incrementOfferteNummer);
+  const getFactuurNummer = useCompanyStore((s) => s.getFactuurNummer);
+  const incrementFactuurNummer = useCompanyStore((s) => s.incrementFactuurNummer);
+  const { setData: setFactuurData, setStep: setFactuurStep, reset: resetFactuur } = useInvoiceFormStore();
+
+  const handleConvertToFactuur = (doc: Document) => {
+    const offerteData = doc.data as OfferteData;
+    resetFactuur();
+    const today = new Date();
+    const factuurnummer = getFactuurNummer();
+    setFactuurData({
+      bedrijf: offerteData.bedrijf,
+      klant: offerteData.klant,
+      regels: offerteData.regels,
+      korting: offerteData.korting,
+      subtotaalExclBTW: offerteData.subtotaalExclBTW,
+      btwSpecificaties: offerteData.btwSpecificaties,
+      totaalBTW: offerteData.totaalBTW,
+      totaalInclBTW: offerteData.totaalInclBTW,
+      factuurnummer,
+      factuurdatum: today.toISOString().split('T')[0],
+      vervaldatum: new Date(today.getTime() + 30 * 86400000).toISOString().split('T')[0],
+      betalingstermijn: 30,
+      valuta: offerteData.valuta,
+      notities: offerteData.projectnaam ? `Ref. offerte: ${doc.nummer} — ${offerteData.projectnaam}` : `Ref. offerte: ${doc.nummer}`,
+      status: 'concept',
+      template: offerteData.template,
+      accentKleur: offerteData.accentKleur,
+    });
+    setFactuurStep(4);
+    incrementFactuurNummer();
+    router.push('/facturen/nieuw');
+  };
 
   const documenten = useMemo(() => {
     return allDocumenten
@@ -145,6 +180,7 @@ export default function OffertesPage() {
         doc={selectedDoc}
         onClose={() => setSelectedDoc(null)}
         onMarkAanvaard={(id) => updateStatus(id, 'definitief')}
+        onConvertToFactuur={handleConvertToFactuur}
       />
     </div>
   );

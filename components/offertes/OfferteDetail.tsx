@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Building2, User, Calendar, Clock } from 'lucide-react';
+import { X, Building2, User, Calendar, Clock, FileText } from 'lucide-react';
 import { Document, OfferteData } from '@/types';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { formatCurrency, formatDate } from '@/lib/formatters';
@@ -11,9 +11,10 @@ interface OfferteDetailProps {
   doc: Document | null;
   onClose: () => void;
   onMarkAanvaard: (id: string) => void;
+  onConvertToFactuur?: (doc: Document) => void;
 }
 
-export function OfferteDetail({ doc, onClose, onMarkAanvaard }: OfferteDetailProps) {
+export function OfferteDetail({ doc, onClose, onMarkAanvaard, onConvertToFactuur }: OfferteDetailProps) {
   const data = doc?.data as OfferteData | undefined;
 
   useEffect(() => {
@@ -206,6 +207,17 @@ export function OfferteDetail({ doc, onClose, onMarkAanvaard }: OfferteDetailPro
                   style={{ backgroundColor: '#2563eb' }}
                 >
                   Markeer als aanvaard
+                </button>
+              )}
+              {onConvertToFactuur && (
+                <button
+                  type="button"
+                  onClick={() => { onConvertToFactuur(doc); onClose(); }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-semibold text-[13px] transition-all hover:opacity-90 active:scale-[0.98] border"
+                  style={{ borderColor: '#5746EA', color: '#5746EA', backgroundColor: '#5746EA10' }}
+                >
+                  <FileText className="w-4 h-4" />
+                  Omzetten naar factuur
                 </button>
               )}
             </div>

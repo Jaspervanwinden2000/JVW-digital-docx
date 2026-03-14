@@ -1,6 +1,7 @@
 'use client';
 
-import { Trash2, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { Trash2, Plus, Sparkles, X, Loader2 } from 'lucide-react';
 import { FactuurRegel, BTWTarief, Eenheid } from '@/types';
 import { berekenRegel, berekenTotalen } from '@/lib/calculations';
 import { formatCurrency } from '@/lib/formatters';
@@ -17,6 +18,11 @@ interface LineItemsEditorProps {
 }
 
 export function LineItemsEditor({ regels, onChange, valuta = 'EUR' }: LineItemsEditorProps) {
+  const [showAi, setShowAi] = useState(false);
+  const [aiTekst, setAiTekst] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
+
   const updateRegel = (id: string, updates: Partial<FactuurRegel>) => {
     onChange(regels.map((r) => {
       if (r.id !== id) return r;
@@ -34,10 +40,87 @@ export function LineItemsEditor({ regels, onChange, valuta = 'EUR' }: LineItemsE
     onChange(regels.filter((r) => r.id !== id));
   };
 
+  const handleAiGenereer = async () => {
+    if (!aiTekst.trim()) return;
+    setAiLoading(true);
+    setAiError('');
+    try {
+      const res = await fetch('/api/parse-items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tekst: aiTekst }),
+      });
+      const json = await res.json();
+      if (json.error) { setAiError(json.error); return; }
+      const nieuweRegels: FactuurRegel[] = (json.regels || []).map((r: { omschrijving: string; aantal: number; eenheid: string; prijsPerEenheid: number; btwTarief: number }) => {
+        const id = generateId();
+        const berekend = berekenRegel(r.aantal || 1, r.prijsPerEenheid || 0, (r.btwTarief || 21) as BTWTarief);
+        return { id, omschrijving: r.omschrijving || '', aantal: r.aantal || 1, eenheid: (r.eenheid || 'stuk') as Eenheid, prijsPerEenheid: r.prijsPerEenheid || 0, btwTarief: (r.btwTarief || 21) as BTWTarief, ...berekend };
+      });
+      // Vervang lege regels, voeg toe aan bestaande
+      const bestaand = regels.filter((r) => r.omschrijving.trim() !== '' || r.prijsPerEenheid > 0);
+      onChange([...bestaand, ...nieuweRegels]);
+      setAiTekst('');
+      setShowAi(false);
+    } catch {
+      setAiError('Er ging iets mis. Probeer opnieuw.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const totalen = berekenTotalen(regels);
 
   return (
     <div className="space-y-3">
+      {/* AI Quick-Fill */}
+      {showAi ? (
+        <div className="card p-4 space-y-3 border-2" style={{ borderColor: '#5746EA' }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" style={{ color: '#5746EA' }} />
+              <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>AI Regels Genereren</span>
+            </div>
+            <button type="button" onClick={() => { setShowAi(false); setAiError(''); }} className="btn-ghost p-1"><X className="w-3.5 h-3.5" /></button>
+          </div>
+          <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+            Beschrijf je werk in gewone taal. Bijv: <em>"4 uur webdesign à €85, 1 domein registratie €15, hosting 3 maanden €20/mnd"</em>
+          </p>
+          <textarea
+            value={aiTekst}
+            onChange={(e) => setAiTekst(e.target.value)}
+            placeholder="Beschrijf je werkzaamheden..."
+            rows={3}
+            className="input-base resize-none text-[13px] w-full"
+            onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAiGenereer(); }}
+          />
+          {aiError && <p className="text-[12px] text-red-500">{aiError}</p>}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleAiGenereer}
+              disabled={aiLoading || !aiTekst.trim()}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+              style={{ backgroundColor: '#5746EA' }}
+            >
+              {aiLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              {aiLoading ? 'Genereren...' : 'Genereer regels'}
+            </button>
+            <span className="text-[11px] self-center" style={{ color: 'var(--text-tertiary)' }}>⌘ + Enter</span>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setShowAi(true)}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium transition-all hover:opacity-80"
+          style={{ backgroundColor: '#5746EA15', color: '#5746EA', border: '1px solid #5746EA40' }}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          AI invullen — beschrijf je werk
+        </button>
+      )}
+
       {/* Column headers - desktop only */}
       <div className="hidden md:grid gap-2 px-1" style={{ gridTemplateColumns: '1fr 90px 100px 120px 80px 100px 36px' }}>
         {['Omschrijving', 'Aantal', 'Eenheid', 'Prijs/eenheid', 'BTW', 'Totaal (excl.)', ''].map((h) => (

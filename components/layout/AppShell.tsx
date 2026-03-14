@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { ChatWidget } from '@/components/chat/ChatWidget';
+import { TimeTracker } from '@/components/timetracker/TimeTracker';
 import { useDocumentsStore } from '@/stores/documentsStore';
 import { useClientsStore } from '@/stores/clientsStore';
 import { useCompanyStore } from '@/stores/companyStore';
@@ -44,6 +45,7 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
 
+      <TimeTracker />
       <ChatWidget />
     </div>
   );

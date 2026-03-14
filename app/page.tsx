@@ -7,6 +7,7 @@ import { RecentDocuments } from '@/components/dashboard/RecentDocuments';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { OmzetChart } from '@/components/dashboard/OmzetChart';
 import { OverdueAlert } from '@/components/dashboard/OverdueAlert';
+import { SmartInsights } from '@/components/dashboard/SmartInsights';
 import { formatDate } from '@/lib/formatters';
 
 export default function Dashboard() {
@@ -37,6 +38,11 @@ export default function Dashboard() {
 
       <section>
         <OmzetChart />
+      </section>
+
+      <section>
+        <p className="section-label mb-3">AI Inzichten</p>
+        <SmartInsights />
       </section>
 
       <section>
