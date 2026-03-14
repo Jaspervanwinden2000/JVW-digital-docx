@@ -10,7 +10,7 @@ import {
   signOut,
   AuthError,
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -29,23 +29,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    // getFirebaseAuth() wordt hier aangeroepen — enkel op de client
+    const auth = getFirebaseAuth();
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
       setLoading(false);
     });
     return unsubscribe;
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
   };
 
   const signInWithGoogle = async () => {
-    await signInWithPopup(auth, googleProvider);
+    await signInWithPopup(getFirebaseAuth(), googleProvider);
   };
 
   const logout = async () => {
-    await signOut(auth);
+    await signOut(getFirebaseAuth());
   };
 
   return (
