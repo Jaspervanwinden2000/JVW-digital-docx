@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="nl" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <AppShell>{children}</AppShell>
         </ThemeProvider>
       </body>

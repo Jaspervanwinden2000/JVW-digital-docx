@@ -27,21 +27,41 @@ function SidebarContent({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2.5 px-4 h-14 flex-shrink-0" style={{ borderBottom: '1px solid #1A1A1E' }}>
-        <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7060F2 0%, #5746EA 100%)' }}>
-          <Zap className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+      {/* Logo */}
+      <div
+        className="flex items-center gap-3 px-4 h-14 flex-shrink-0"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{
+            background: 'linear-gradient(135deg, #6C63FF 0%, #5040EE 100%)',
+            boxShadow: '0 4px 12px rgba(108, 99, 255, 0.4)',
+          }}
+        >
+          <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold leading-none" style={{ color: '#E8E8F0' }}>DocuForge Pro</p>
-          <p className="text-[11px] mt-0.5" style={{ color: '#3A3A4C' }}>Enterprise</p>
+          <p className="text-[13.5px] font-semibold leading-none" style={{ color: '#EEF2FF', fontFamily: 'Poppins, sans-serif' }}>
+            DocuForge Pro
+          </p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'rgba(108, 99, 255, 0.7)' }}>Enterprise</p>
         </div>
-        <button onClick={onClose} className="md:hidden p-1.5 rounded" style={{ color: '#4A4A5A' }}>
-          <X className="w-3.5 h-3.5" />
+        <button
+          onClick={onClose}
+          className="md:hidden p-1.5 rounded-md transition-colors hover:bg-white/5 cursor-pointer"
+          style={{ color: '#3D4A6B' }}
+          aria-label="Navigatie sluiten"
+        >
+          <X className="w-4 h-4" />
         </button>
       </div>
 
-      <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
-        <p className="px-3 pb-2 text-[10.5px] font-semibold uppercase tracking-widest" style={{ color: '#2A2A38' }}>Menu</p>
+      {/* Nav */}
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: '#1E2840' }}>
+          Navigatie
+        </p>
         {navItems.map((item) => {
           const active = isActive(item.href);
           const Icon = item.icon;
@@ -50,25 +70,48 @@ function SidebarContent({ onClose }: { onClose: () => void }) {
               key={item.href}
               href={item.href}
               onClick={onClose}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-150 cursor-pointer group"
               style={{
-                color: active ? '#E8E8F0' : '#606070',
-                backgroundColor: active ? '#1E1E28' : 'transparent',
+                color: active ? '#EEF2FF' : '#3D4A6B',
+                backgroundColor: active ? 'rgba(108, 99, 255, 0.15)' : 'transparent',
+                border: active ? '1px solid rgba(108, 99, 255, 0.25)' : '1px solid transparent',
               }}
-              onMouseEnter={(e) => { if (!active) { e.currentTarget.style.color = '#C0C0D0'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; } }}
-              onMouseLeave={(e) => { if (!active) { e.currentTarget.style.color = '#606070'; e.currentTarget.style.backgroundColor = 'transparent'; } }}
+              onMouseEnter={(e) => {
+                if (!active) {
+                  e.currentTarget.style.color = '#9AA5C8';
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!active) {
+                  e.currentTarget.style.color = '#3D4A6B';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
             >
-              <Icon className="w-[15px] h-[15px] flex-shrink-0" style={{ color: active ? '#7060F2' : 'inherit' }} />
-              {item.label}
-              {active && <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#5746EA' }} />}
+              <Icon
+                className="w-[15px] h-[15px] flex-shrink-0 transition-colors"
+                style={{ color: active ? '#6C63FF' : 'inherit' }}
+              />
+              <span className="flex-1">{item.label}</span>
+              {active && (
+                <span
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: '#6C63FF', boxShadow: '0 0 6px rgba(108, 99, 255, 0.8)' }}
+                />
+              )}
             </Link>
           );
         })}
       </nav>
 
-      <div className="px-2 py-3" style={{ borderTop: '1px solid #1A1A1E' }}>
-        <div className="px-3 py-2 rounded-md" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
-          <p className="text-[11px]" style={{ color: '#323242' }}>v1.0 · Lokaal opgeslagen</p>
+      {/* Footer */}
+      <div className="px-3 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <div
+          className="px-3 py-2 rounded-lg"
+          style={{ backgroundColor: 'rgba(108, 99, 255, 0.06)', border: '1px solid rgba(108, 99, 255, 0.12)' }}
+        >
+          <p className="text-[11px] font-medium" style={{ color: 'rgba(108, 99, 255, 0.6)' }}>v1.0 · Lokaal opgeslagen</p>
         </div>
       </div>
     </div>
@@ -76,9 +119,19 @@ function SidebarContent({ onClose }: { onClose: () => void }) {
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const sidebarStyle: React.CSSProperties = {
+    backgroundColor: 'rgba(4, 7, 16, 0.85)',
+    borderRight: '1px solid rgba(255,255,255,0.06)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+  };
+
   return (
     <>
-      <aside className="hidden md:flex flex-col w-[216px] flex-shrink-0" style={{ backgroundColor: '#0C0C0E', borderRight: '1px solid #1A1A1E' }}>
+      <aside
+        className="hidden md:flex flex-col w-[220px] flex-shrink-0"
+        style={sidebarStyle}
+      >
         <SidebarContent onClose={onClose} />
       </aside>
       <AnimatePresence>
@@ -86,8 +139,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           <motion.aside
             initial={{ x: -240 }} animate={{ x: 0 }} exit={{ x: -240 }}
             transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-            className="fixed inset-y-0 left-0 z-30 w-[216px] flex flex-col md:hidden"
-            style={{ backgroundColor: '#0C0C0E', borderRight: '1px solid #1A1A1E' }}
+            className="fixed inset-y-0 left-0 z-30 w-[220px] flex flex-col md:hidden"
+            style={sidebarStyle}
           >
             <SidebarContent onClose={onClose} />
           </motion.aside>
